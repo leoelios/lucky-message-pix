@@ -1,0 +1,8 @@
+# Node output third-party libraries
+node_modules/
+
+# Environment variables values
+.env
+
+# Certificates for api comunication
+*.p12
