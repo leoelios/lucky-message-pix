@@ -4,25 +4,28 @@ const PORT = 443;
 const fs = require('fs');
 const https = require('https')
 const express = require('express');
+const logger = require('morgan');
 const { GerenciaNet } = require('./client');
 
 GerenciaNet.auth()
   .then(as => console.log(as.data))
   .catch(err => console.error(err));
 
-  const httpsOptions = {
-    cert: fs.readFileSync("cert.pem"), // Certificado fullchain do dominio
-    key: fs.readFileSync("key.pem"), // Chave privada do domínio
-    ca: fs.readFileSync("chain-pix-sandbox.crt"),   // Certificado público da Gerencianet
-    minVersion: "TLSv1.2",
-    requestCert: true,
-    rejectUnauthorized: false, //Mantenha como false para que os demais endpoints da API não rejeitem requisições sem MTLS
-  };
-
-
+const httpsOptions = {
+  cert: fs.readFileSync("cert.pem"), // Certificado fullchain do dominio
+  key: fs.readFileSync("key.pem"), // Chave privada do domínio
+  ca: fs.readFileSync("chain-pix-sandbox.crt"),   // Certificado público da Gerencianet
+  minVersion: "TLSv1.2",
+  requestCert: true,
+  rejectUnauthorized: false, //Mantenha como false para que os demais endpoints da API não rejeitem requisições sem MTLS
+};
   
 const app = express();
 const httpsServer = https.createServer(httpsOptions, app);
+
+app.use(logger('dev'))
+app.use(express.json())
+app.use(express.urlencoded({ extended: false}))
 
 app.get('/', (req, res) => {
   res.send('Hello')
