@@ -1,6 +1,6 @@
 require('./config/dotenv');
 
-const PORT = 8080;
+const PORT = 443;
 const fs = require('fs');
 const https = require('https')
 const express = require('express');
@@ -11,11 +11,11 @@ GerenciaNet.auth()
   .catch(err => console.error(err));
 
   const httpsOptions = {
-    // cert: fs.readFileSync(""), // Certificado fullchain do dominio
-    // key: fs.readFileSync("/"), // Chave privada do domínio
-    // ca: fs.readFileSync(""),   // Certificado público da Gerencianet
-    // minVersion: "TLSv1.2",
-    // requestCert: true,
+    cert: fs.readFileSync("cert.pem"), // Certificado fullchain do dominio
+    key: fs.readFileSync("key.pem"), // Chave privada do domínio
+    ca: fs.readFileSync("chain-pix-sandbox.crt"),   // Certificado público da Gerencianet
+    minVersion: "TLSv1.2",
+    requestCert: true,
     rejectUnauthorized: false, //Mantenha como false para que os demais endpoints da API não rejeitem requisições sem MTLS
   };
 
@@ -23,6 +23,10 @@ GerenciaNet.auth()
   
 const app = express();
 const httpsServer = https.createServer(httpsOptions, app);
+
+app.get('/', (req, res) => {
+  res.send('Hello')
+})
 
 app.post("/webhook", (request, response) => {
   // Verifica se a requisição que chegou nesse endpoint foi autorizada
@@ -54,6 +58,6 @@ app.post("/webhook/pix", (request, response) => {
   }
 });
 
-httpsServer.listen(8080, () => {
+httpsServer.listen(PORT, () => {
   console.log('Server running at ' + PORT + ' port.')
 })

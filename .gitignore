@@ -6,3 +6,5 @@ node_modules/
 
 # Certificates for api comunication
 *.p12
+*.pem
+*.crt
