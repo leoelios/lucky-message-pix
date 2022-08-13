@@ -1,6 +1,7 @@
 require('./config/dotenv');
 
 const PORT = 443;
+const { CERT_FULLCHAIN_PATH, CERT_PRIVATE_KEY_PATH, CERT_PUBLIC_GNET } = process.env;
 const fs = require('fs');
 const https = require('https')
 const express = require('express');
@@ -12,9 +13,9 @@ GerenciaNet.auth()
   .catch(err => console.error(err));
 
 const httpsOptions = {
-  cert: fs.readFileSync("cert.pem"), // Certificado fullchain do dominio
-  key: fs.readFileSync("key.pem"), // Chave privada do domínio
-  ca: fs.readFileSync("chain-pix-sandbox.crt"),   // Certificado público da Gerencianet
+  cert: fs.readFileSync(CERT_FULLCHAIN_PATH), // Certificado fullchain do dominio
+  key: fs.readFileSync(CERT_PRIVATE_KEY_PATH), // Chave privada do domínio
+  ca: fs.readFileSync(CERT_PUBLIC_GNET),   // Certificado público da Gerencianet
   minVersion: "TLSv1.2",
   requestCert: true,
   rejectUnauthorized: false, //Mantenha como false para que os demais endpoints da API não rejeitem requisições sem MTLS
