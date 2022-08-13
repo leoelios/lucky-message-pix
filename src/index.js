@@ -32,6 +32,11 @@ app.get('/', (req, res) => {
   res.send('Hello')
 })
 
+app.post('//pix', (req, res) => {
+  console.log(req.body);
+  res.status(200).end();
+})
+
 app.post("/webhook", (request, response) => {
   // Verifica se a requisição que chegou nesse endpoint foi autorizada
   if (request.socket.authorized) { 
