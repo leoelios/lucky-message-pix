@@ -18,6 +18,7 @@ const httpsAgent = new https.Agent({
 async function auth() {
 
   if (isAuthenticated()) {
+    console.log('Returning cached context auth');
     return getContextData();
   }
 
