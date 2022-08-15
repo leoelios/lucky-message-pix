@@ -59,8 +59,8 @@ app.post("/webhook/pix", async (request, response) => {
           }
       })*/
 
-        const auth = await auth();
-        console.log('Authentication', auth);
+        const authResponse = auth();
+        console.log('Authentication', authResponse);
         console.log(request.body);
       response.status(200).end();
   }else{
