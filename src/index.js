@@ -7,10 +7,7 @@ const https = require('https')
 const express = require('express');
 const logger = require('morgan');
 const { GerenciaNet } = require('./client');
-
-GerenciaNet.auth()
-  .then(as => console.log(as.data))
-  .catch(err => console.error(err));
+const { auth } = require('./client/GerenciaNet');
 
 const httpsOptions = {
   cert: fs.readFileSync(CERT_FULLCHAIN_PATH), // Certificado fullchain do dominio
@@ -33,6 +30,7 @@ app.get('/', (req, res) => {
 })
 
 app.post('//pix', (req, res) => {
+  
   console.log(req.body);
   res.status(200).end();
 })
@@ -47,7 +45,7 @@ app.post("/webhook", (request, response) => {
 });
 
 // Endpoind para recepção do webhook tratando o /pix
-app.post("/webhook/pix", (request, response) => {
+app.post("/webhook/pix", async (request, response) => {
   if (request.socket.authorized){
       //Seu código tratando a callback
       /* EXEMPLO:
@@ -60,7 +58,10 @@ app.post("/webhook/pix", (request, response) => {
               response.status(200).end();
           }
       })*/
-      console.log(request.body);
+
+        const auth = await auth();
+        console.log('Authentication', auth);
+        console.log(request.body);
       response.status(200).end();
   }else{
       response.status(401).end();

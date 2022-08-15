@@ -1,6 +1,7 @@
 const https = require('https');
 const { default: axios } = require('axios');
 const { gerenciaNet: config } = require('../config');
+const { setContext, isAuthenticated, getContextData } = require('./AuthContext');
 
 const { credentials: cred, baseURL } = config;
 const { cert, clientID, clientSecret, grantType: grant_type } = cred;
@@ -15,6 +16,11 @@ const httpsAgent = new https.Agent({
 });
 
 async function auth() {
+
+  if (isAuthenticated()) {
+    return getContextData();
+  }
+
   const resp = await api.post(
     '/oauth/token',
     {
@@ -29,7 +35,18 @@ async function auth() {
     }
   );
 
-  return resp;
+  setContext(resp.data);
+
+  return resp.data;
+}
+
+async function sendPix({
+  valor,
+  chavePagador,
+  chaveReceptor,
+  infoPagador
+}) {
+
 }
 
 module.exports = {
