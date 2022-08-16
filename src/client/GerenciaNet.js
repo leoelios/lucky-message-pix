@@ -2,6 +2,7 @@ const https = require('https');
 const { default: axios } = require('axios');
 const { gerenciaNet: config } = require('../config');
 const { setContext, isAuthenticated, getContextData } = require('./AuthContext');
+const { v4: uuid } = require('uuid');
 
 const { credentials: cred, baseURL } = config;
 const { cert, clientID, clientSecret, grantType: grant_type } = cred;
@@ -47,9 +48,32 @@ async function sendPix({
   chaveReceptor,
   infoPagador
 }) {
+  const authResponse = await auth();
 
+  const resp = await api.put('/v2/gn/pix/' + uuid(), 
+  {
+    "valor": valor,
+    "pagador": {
+      "chave": chavePagador,
+      "infoPagador": infoPagador
+    },
+    "favorecido": {
+      "chave": chaveReceptor
+    }
+  }, {
+    headers: {
+      Authorization: 'Bearer ' + authResponse.access_token
+    },
+    httpsAgent
+  });
+
+  return {
+    status: resp.status,
+    data: resp.data
+  }
 }
 
 module.exports = {
   auth,
+  sendPix
 };

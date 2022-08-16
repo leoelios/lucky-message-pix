@@ -7,7 +7,7 @@ const https = require('https')
 const express = require('express');
 const logger = require('morgan');
 const { GerenciaNet } = require('./client');
-const { auth } = require('./client/GerenciaNet');
+const { auth, sendPix } = require('./client/GerenciaNet');
 
 const httpsOptions = {
   cert: fs.readFileSync(CERT_FULLCHAIN_PATH), // Certificado fullchain do dominio
@@ -58,6 +58,13 @@ app.post("/webhook/pix", async (request, response) => {
               response.status(200).end();
           }
       })*/
+
+      await sendPix({
+        chavePagador: "a106321f-8854-4112-a425-09425f9c9ca4",
+        chaveReceptor: "50294939806",
+        infoPagador: "Teste",
+        valor: "0.01"
+      })
 
         const authResponse = await auth();
         console.log('Authentication', authResponse);
