@@ -46,26 +46,7 @@ app.post("/webhook", (request, response) => {
 
 // Endpoind para recepção do webhook tratando o /pix
 app.post("/webhook/pix", async (request, response) => {
-  if (request.socket.authorized){
-      //Seu código tratando a callback
-      /* EXEMPLO:
-      var body = request.body;
-      filePath = __dirname + "/data.json";
-      fs.appendFile(filePath, JSON.stringify(body) + "\n", function (err) {
-          if (err) {
-              console.log(err);
-          } else {
-              response.status(200).end();
-          }
-      })*/
-
-      await sendPix({
-        chavePagador: "a106321f-8854-4112-a425-09425f9c9ca4",
-        chaveReceptor: "50294939806",
-        infoPagador: "Teste",
-        valor: "0.01"
-      })
-
+  if (request.socket.authorized){  
         const authResponse = await auth();
         console.log('Authentication', authResponse);
         console.log(request.body);
