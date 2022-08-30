@@ -94,7 +94,7 @@ async function generateQrCode(locId) {
 
   const resp = await api.get('/v2/loc/' + locId + '/qrcode', {
     headers: {
-      Authorization: 'Bearer ' + authResponse()
+      Authorization: 'Bearer ' + (await auth())
     },
     httpsAgent
   });
