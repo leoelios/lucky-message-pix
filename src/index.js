@@ -54,8 +54,7 @@ app.post("/webhook/pix", async (request, response) => {
   if (request.socket.authorized){  
         const pixs = request.body;
 
-        pixs.forEach(pix => {
-
+        for await (const pix of pixs) {
           const { endToEndId, valor } = pix;
           console.log('Pix recebido', pix);
           
@@ -63,7 +62,7 @@ app.post("/webhook/pix", async (request, response) => {
             endToEndId,
             valor
           })
-        })
+        }
 
       response.status(200).end();
   }else{
