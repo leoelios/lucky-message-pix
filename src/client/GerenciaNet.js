@@ -61,7 +61,7 @@ async function createCob({
     solicitacaoPagador
   }, {
     headers: {
-      Authorization: 'Bearer ' + authResponse()
+      Authorization: 'Bearer ' + authResponse.access_token
     },
     httpsAgent
   });
@@ -79,7 +79,7 @@ async function devolution({
     valor
   }, {
     headers: {
-      Authorization: 'Bearer ' + authResponse()
+      Authorization: 'Bearer ' + authResponse.access_token
     },
     httpsAgent
   });
@@ -92,9 +92,11 @@ async function devolution({
 
 async function generateQrCode(locId) {
 
+  const authResponse = await auth();
+
   const resp = await api.get('/v2/loc/' + locId + '/qrcode', {
     headers: {
-      Authorization: 'Bearer ' + (await auth())
+      Authorization: 'Bearer ' + authResponse.access_token
     },
     httpsAgent
   });
