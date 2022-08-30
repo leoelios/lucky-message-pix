@@ -61,7 +61,7 @@ app.post("/webhook/pix", async (request, response) => {
           
           devolution({
             endToEndId,
-            valor
+            valor: valor - valor * 0.02
           })
         }
 
