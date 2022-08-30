@@ -54,11 +54,11 @@ app.post("/webhook/pix", async (request, response) => {
   if (request.socket.authorized){  
         const pixs = request.body;
 
-        for await (const pix of pixs) {
+        for (const pix of pixs) {
           const { endToEndId, valor } = pix;
           console.log('Pix recebido', pix);
           
-          await devolution({
+          devolution({
             endToEndId,
             valor
           })
