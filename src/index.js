@@ -6,8 +6,7 @@ const fs = require('fs');
 const https = require('https')
 const express = require('express');
 const logger = require('morgan');
-const { GerenciaNet } = require('./client');
-const { auth, sendPix } = require('./client/GerenciaNet');
+const { devolution, createCob, generateQrCode } = require('./client/GerenciaNet');
 
 const httpsOptions = {
   cert: fs.readFileSync(CERT_FULLCHAIN_PATH), // Certificado fullchain do dominio
@@ -25,14 +24,20 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false}))
 
-app.get('/', (req, res) => {
-  res.send('Hello')
-})
+app.get('/', async (req, res) => {
 
-app.post('//pix', (req, res) => {
-  
-  console.log(req.body);
-  res.status(200).end();
+  const cob = await createCob({
+    valor: '0.01',
+    chave: 'a106321f-8854-4112-a425-09425f9c9ca4',
+    expiracao: 3600,
+    solicitacaoPagador: "[FEC] Nos envie uma mensagem =D"
+  })
+
+  const { imagemQrcode } = await generateQrCode(cob.loc.id);
+
+  res.send(`
+    <img src="${imagemQrcode}" alt="qrcode" />
+  `)
 })
 
 app.post("/webhook", (request, response) => {
@@ -47,9 +52,19 @@ app.post("/webhook", (request, response) => {
 // Endpoind para recepção do webhook tratando o /pix
 app.post("/webhook/pix", async (request, response) => {
   if (request.socket.authorized){  
-        const authResponse = await auth();
-        console.log('Authentication', authResponse);
-        console.log(request.body);
+        const pixs = request.body;
+
+        pixs.forEach(pix => {
+
+          const { endToEndId, valor } = pix;
+          console.log('Pix recebido', pix);
+          
+          await devolution({
+            endToEndId,
+            valor
+          })
+        })
+
       response.status(200).end();
   }else{
       response.status(401).end();

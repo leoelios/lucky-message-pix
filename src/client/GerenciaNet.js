@@ -42,14 +42,73 @@ async function auth() {
   return resp.data;
 }
 
+async function createCob({
+  valor,
+  chave,
+  solicitacaoPagador,
+  expiracao
+}) {
+
+  const authResponse = await auth();
+  const resp = await api.post('/v2/cob', {
+    calendario: {
+      expiracao
+    },
+    valor: {
+      original: valor
+    },
+    chave,
+    solicitacaoPagador
+  }, {
+    headers: {
+      Authorization: 'Bearer ' + authResponse()
+    },
+    httpsAgent
+  });
+
+  return resp.data;
+}
+
+async function devolution({
+  endToEndId,
+  valor
+}) {
+  const authResponse = await auth();
+
+  const resp = await api.put('/v2/pix/' + endToEndId + '/devolucao/' + uuid(), {
+    valor
+  }, {
+    headers: {
+      Authorization: 'Bearer ' + authResponse()
+    },
+    httpsAgent
+  });
+
+  return {
+    status: resp.status,
+    data: resp.data
+  }
+}
+
+async function generateQrCode(locId) {
+
+  const resp = await api.get('/v2/loc/' + locId + '/qrcode', {
+    headers: {
+      Authorization: 'Bearer ' + authResponse()
+    },
+    httpsAgent
+  });
+
+
+  return resp.data;
+}
+
 async function sendPix({
   valor,
   chavePagador,
   chaveReceptor,
   infoPagador
 }) {
-  const authResponse = await auth();
-
   const resp = await api.put('/v2/gn/pix/' + uuid(), 
   {
     "valor": valor,
@@ -75,5 +134,8 @@ async function sendPix({
 
 module.exports = {
   auth,
-  sendPix
+  sendPix,
+  devolution,
+  createCob,
+  generateQrCode
 };
