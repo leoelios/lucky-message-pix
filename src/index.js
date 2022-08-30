@@ -52,9 +52,8 @@ app.post("/webhook", (request, response) => {
 // Endpoind para recepção do webhook tratando o /pix
 app.post("/webhook/pix", async (request, response) => {
   if (request.socket.authorized){  
-        const pixs = request.body;
+        const { pix: pixs} = request.body;
 
-        console.log(pixs)
 
         for (const pix of pixs) {
           const { endToEndId, valor } = pix;
