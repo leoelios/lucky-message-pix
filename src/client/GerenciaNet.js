@@ -75,7 +75,7 @@ async function devolution({
 }) {
   const authResponse = await auth();
 
-  const resp = await api.put('/v2/pix/' + endToEndId + '/devolucao/' + uuid(), {
+  const resp = await api.put('/v2/pix/' + endToEndId + '/devolucao/' + uuid().substr(0, 8), {
     valor
   }, {
     headers: {
