@@ -54,6 +54,8 @@ app.post("/webhook/pix", async (request, response) => {
   if (request.socket.authorized){  
         const pixs = request.body;
 
+        console.log(pixs)
+
         for (const pix of pixs) {
           const { endToEndId, valor } = pix;
           console.log('Pix recebido', pix);
