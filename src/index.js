@@ -56,13 +56,16 @@ app.post("/webhook/pix", async (request, response) => {
 
 
         for (const pix of pixs) {
-          const { endToEndId, valor } = pix;
+          const { endToEndId, valor, devolucoes } = pix;
           console.log('Pix recebido', pix);
-          
-          devolution({
-            endToEndId,
-            valor: ((valor - valor * 0.02) > 0.01 ? (valor - valor * 0.02) : 0.01).toString() 
-          })
+
+          if (!devolucoes?.length) {
+            devolution({
+              endToEndId,
+              valor: ((valor - valor * 0.02) > 0.01 ? (valor - valor * 0.02) : 0.01).toString() 
+            })
+          }
+
         }
 
       response.status(200).end();
