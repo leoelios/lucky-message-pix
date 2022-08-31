@@ -7,6 +7,7 @@ const https = require('https')
 const express = require('express');
 const logger = require('morgan');
 const { devolution, createCob, generateQrCode } = require('./client/GerenciaNet');
+const { insertDonation } = require('./config/mongodb');
 
 const httpsOptions = {
   cert: fs.readFileSync(CERT_FULLCHAIN_PATH), // Certificado fullchain do dominio
@@ -56,10 +57,18 @@ app.post("/webhook/pix", async (request, response) => {
 
 
         for (const pix of pixs) {
-          const { endToEndId, valor, devolucoes } = pix;
+          const { endToEndId, valor, devolucoes, txid, horario, chave } = pix;
           console.log('Pix recebido', pix);
 
           if (!devolucoes?.length) {
+
+            insertDonation({
+              chave,
+              horario,
+              txid,
+              valor
+            })
+
             devolution({
               endToEndId,
               valor: ((valor - valor * 0.02) > 0.01 ? (valor - valor * 0.02) : 0.01).toString() 
