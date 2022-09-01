@@ -8,7 +8,7 @@ const https = require('https')
 const express = require('express');
 const logger = require('morgan');
 const { devolution, createCob, generateQrCode } = require('./client/GerenciaNet');
-const { insertDonation, insertUserCobGenerated, getTopDonations, getDonationByTxId, markDonationAsPaid } = require('./config/mongodb');
+const { insertUserCobGenerated, getTopDonations, getDonationByTxId, markDonationAsPaid } = require('./config/mongodb');
 
 const httpsOptions = {
   cert: fs.readFileSync(CERT_FULLCHAIN_PATH), // Certificado fullchain do dominio
@@ -60,22 +60,6 @@ app.get('/top-donation', async(req,res) => {
   res.send(donations);
 })
 
-// app.get('/', async (req, res) => {
-
-//   const cob = await createCob({
-//     valor: '0.01',
-//     chave: process.env.CHAVE_PIX,
-//     expiracao: 3600,
-//     solicitacaoPagador: "[FEC] Nos envie uma mensagem =D"
-//   })
-
-//   const { imagemQrcode } = await generateQrCode(cob.loc.id);
-
-//   res.send(`
-//     <img src="${imagemQrcode}" alt="qrcode" />
-//   `)
-// })
-
 app.post("/webhook", (request, response) => {
   if (request.socket.authorized) { 
       response.status(200).end();
@@ -89,7 +73,7 @@ app.post("/webhook/pix", async (request, response) => {
         const { pix: pixs} = request.body;
 
         for (const pix of pixs) {
-          const { endToEndId, valor, devolucoes, txid, horario, chave } = pix;
+          const { endToEndId, valor, devolucoes, txid, horario, chave, infoPagador } = pix;
           console.log('Pix recebido', pix);
 
           if (!devolucoes?.length) {
@@ -98,7 +82,8 @@ app.post("/webhook/pix", async (request, response) => {
               chave,
               horario,
               txid,
-              valor
+              valor,
+              infoPagador
             })
 
             const cob =  await getDonationByTxId(txid);
