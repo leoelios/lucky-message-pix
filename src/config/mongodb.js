@@ -22,7 +22,6 @@ async function getTopDonations() {
     })
         .toArray();
 
-    console.log(tops);
     return tops;
 }
 

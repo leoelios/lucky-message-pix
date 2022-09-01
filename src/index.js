@@ -59,7 +59,7 @@ app.post('/pix', async (req,res ) => {
 })
 
 app.get('/top-donation', async(req,res) => {
-  const donations = getTopDonations();
+  const donations = await getTopDonations();
   res.send(donations);
 })
 
