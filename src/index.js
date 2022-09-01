@@ -86,7 +86,7 @@ app.post("/webhook/pix", async (request, response) => {
               infoPagador
             })
             
-            const cob = getDonationByTxId(txid);
+            const cob = await getDonationByTxId(txid);
 
             sendThroughSocket(
               JSON.stringify({
