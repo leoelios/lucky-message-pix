@@ -44,7 +44,7 @@ app.post('/pix', async (req,res ) => {
   const { value, nickname } = req.body;
 
   const cob = await createCob({
-    valor: value,
+    valor: value.toString(),
     chave: process.env.CHAVE_PIX,
     expiracao: 3600,
     solicitacaoPagador: "Mensagem para => FEC"
