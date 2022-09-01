@@ -5,9 +5,9 @@ async function getDonationByTxId(txid) {
     const db = await MongoClient.connect(url);
     const dbo = db.db(DATABASE_DATABASE);
 
-    const donate = await dbo.collection('donations').find({}, {
+    const donate = await dbo.collection('donations').findOne({}, {
         txid
-    }).toArray()["0"]
+    });
 
     return donate;
 }
