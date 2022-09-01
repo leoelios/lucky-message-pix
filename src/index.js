@@ -78,7 +78,7 @@ app.post("/webhook/pix", async (request, response) => {
 
           if (!devolucoes?.length) {
 
-            markDonationAsPaid({
+            await markDonationAsPaid({
               chave,
               horario,
               txid,
