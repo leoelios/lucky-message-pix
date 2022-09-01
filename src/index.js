@@ -3,11 +3,12 @@ require('./config/dotenv');
 const PORT = 443;
 const { CERT_FULLCHAIN_PATH, CERT_PRIVATE_KEY_PATH, CERT_PUBLIC_GNET } = process.env;
 const fs = require('fs');
+const ws = require('ws');
 const https = require('https')
 const express = require('express');
 const logger = require('morgan');
 const { devolution, createCob, generateQrCode } = require('./client/GerenciaNet');
-const { insertDonation } = require('./config/mongodb');
+const { insertDonation, insertUserCobGenerated, getTopDonations, getDonationByTxId, markDonationAsPaid } = require('./config/mongodb');
 
 const httpsOptions = {
   cert: fs.readFileSync(CERT_FULLCHAIN_PATH), // Certificado fullchain do dominio
@@ -18,6 +19,14 @@ const httpsOptions = {
   rejectUnauthorized: false, //Mantenha como false para que os demais endpoints da API não rejeitem requisições sem MTLS
 };
   
+const sockets = [];
+const WebSocket = require('ws');
+const server = new WebSocket.Server({
+  port: 8080
+});
+
+server.on('connection', (socket) => sockets.push(socket))
+
 const app = express();
 const httpsServer = https.createServer(httpsOptions, app);
 
@@ -25,24 +34,49 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false}))
 
-app.get('/', async (req, res) => {
+app.post('/pix', async (req,res ) => {
+
+  const { value, nickname } = req.body;
 
   const cob = await createCob({
-    valor: '0.01',
-    chave: 'a106321f-8854-4112-a425-09425f9c9ca4',
+    valor: value,
+    chave: process.env.CHAVE_PIX,
     expiracao: 3600,
-    solicitacaoPagador: "[FEC] Nos envie uma mensagem =D"
+    solicitacaoPagador: "Nos envie uma mensagem para ser lida na FEC"
+  });
+
+  const qrcode = await generateQrCode(cob.loc.id); 
+
+  insertUserCobGenerated({
+    nickname,
+    txid: cob.txid,
   })
 
-  const { imagemQrcode } = await generateQrCode(cob.loc.id);
-
-  res.send(`
-    <img src="${imagemQrcode}" alt="qrcode" />
-  `)
+  res.send(qrcode);
 })
 
+app.get('/top-donation', async(req,res) => {
+  const donations = getTopDonations();
+  res.send(donations);
+})
+
+// app.get('/', async (req, res) => {
+
+//   const cob = await createCob({
+//     valor: '0.01',
+//     chave: process.env.CHAVE_PIX,
+//     expiracao: 3600,
+//     solicitacaoPagador: "[FEC] Nos envie uma mensagem =D"
+//   })
+
+//   const { imagemQrcode } = await generateQrCode(cob.loc.id);
+
+//   res.send(`
+//     <img src="${imagemQrcode}" alt="qrcode" />
+//   `)
+// })
+
 app.post("/webhook", (request, response) => {
-  // Verifica se a requisição que chegou nesse endpoint foi autorizada
   if (request.socket.authorized) { 
       response.status(200).end();
   } else {
@@ -50,11 +84,9 @@ app.post("/webhook", (request, response) => {
   }
 });
 
-// Endpoind para recepção do webhook tratando o /pix
 app.post("/webhook/pix", async (request, response) => {
   if (request.socket.authorized){  
         const { pix: pixs} = request.body;
-
 
         for (const pix of pixs) {
           const { endToEndId, valor, devolucoes, txid, horario, chave } = pix;
@@ -62,12 +94,23 @@ app.post("/webhook/pix", async (request, response) => {
 
           if (!devolucoes?.length) {
 
-            insertDonation({
+            markDonationAsPaid({
               chave,
               horario,
               txid,
               valor
             })
+
+            const cob =  await getDonationByTxId(txid);
+
+            sendThroughSocket(
+              JSON.stringify({
+                event: 'pix_received',
+                data: {
+                  ...cob
+                }
+              })
+            )
 
             devolution({
               endToEndId,
@@ -86,3 +129,8 @@ app.post("/webhook/pix", async (request, response) => {
 httpsServer.listen(PORT, () => {
   console.log('Server running at ' + PORT + ' port.')
 })
+
+function sendThroughSocket(msg) {
+  console.log(msg);
+  // sockets.forEach(socket => socket.send(msg))
+}
