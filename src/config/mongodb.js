@@ -70,7 +70,6 @@ function insertUserCobGenerated({
 }
 
 module.exports = {
-    insertDonation,
     insertUserCobGenerated,
     getTopDonations,
     getDonationByTxId,
