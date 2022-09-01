@@ -35,7 +35,7 @@ async function markDonationAsPaid({
 
     const donation = getDonationByTxId(txid);
 
-    await dbo.collection('donations').updateOne({
+    return dbo.collection('donations').updateOne({
         txid
     }, {
         $set: {
