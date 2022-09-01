@@ -78,13 +78,15 @@ app.post("/webhook/pix", async (request, response) => {
 
           if (!devolucoes?.length) {
 
-            const cob = await markDonationAsPaid({
+            await markDonationAsPaid({
               chave,
               horario,
               txid,
               valor,
               infoPagador
             })
+            
+            const cob = getDonationByTxId(txid);
 
             sendThroughSocket(
               JSON.stringify({
