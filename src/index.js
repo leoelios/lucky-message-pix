@@ -1,6 +1,6 @@
 require('./config/dotenv');
 
-const PORT = 443;
+const PORT = process.env.APP_PORT;
 const { CERT_FULLCHAIN_PATH, CERT_PRIVATE_KEY_PATH, CERT_PUBLIC_GNET } = process.env;
 const fs = require('fs');
 const ws = require('ws');
