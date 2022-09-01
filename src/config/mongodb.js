@@ -17,7 +17,7 @@ async function getTopDonations() {
     const dbo = db.db(DATABASE_DATABASE);
 
     const tops = await dbo.collection('donations').find()
-        .sort({value: -1}).limit(3)
+        .sort({valor: -1}).limit(3)
         .toArray();
 
     return tops;

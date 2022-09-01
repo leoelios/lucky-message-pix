@@ -25,7 +25,10 @@ const server = new WebSocket.Server({
   port: 8080
 });
 
-server.on('connection', (socket) => sockets.push(socket))
+server.on('connection', (socket) => {
+  console.log('[SOCKET] Connected: ' + socket)
+  sockets.push(socket);
+})
 
 const app = express();
 const httpsServer = https.createServer(httpsOptions, app);
@@ -42,7 +45,7 @@ app.post('/pix', async (req,res ) => {
     valor: value,
     chave: process.env.CHAVE_PIX,
     expiracao: 3600,
-    solicitacaoPagador: "Nos envie uma mensagem para ser lida na FEC"
+    solicitacaoPagador: "Mensagem para => FEC"
   });
 
   const qrcode = await generateQrCode(cob.loc.id); 
@@ -116,6 +119,8 @@ httpsServer.listen(PORT, () => {
 })
 
 function sendThroughSocket(msg) {
-  console.log(msg);
-  // sockets.forEach(socket => socket.send(msg))
+  console.log('[SOCKET] ' +  msg);
+  sockets.forEach(socket => {
+    socket.send(msg)
+  })
 }
