@@ -110,10 +110,12 @@ app.post("/webhook/pix", async (request, response) => {
               })
             )
 
-            devolution({
+            const dev = await devolution({
               endToEndId,
               valor: ((valor - valor * 0.02) > 0.01 ? (valor - valor * 0.02) : 0.01).toString() 
             })
+
+            console.log(dev);
           }
 
         }
