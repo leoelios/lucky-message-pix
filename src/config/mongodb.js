@@ -16,10 +16,13 @@ async function getTopDonations() {
     const db = await MongoClient.connect(url);
     const dbo = db.db(DATABASE_DATABASE);
 
-    const tops = await dbo.collection('donations').find()
-        .sort({valor: -1}).limit(3)
+    const tops = await dbo.collection('donations').find({}, {
+        sort: { valor: -1},
+        limit: 3
+    })
         .toArray();
 
+    console.log(tops);
     return tops;
 }
 
