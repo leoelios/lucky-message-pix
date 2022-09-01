@@ -6,6 +6,7 @@ const fs = require('fs');
 const ws = require('ws');
 const https = require('https')
 const express = require('express');
+const cors = require('cors');
 const logger = require('morgan');
 const { devolution, createCob, generateQrCode } = require('./client/GerenciaNet');
 const { insertUserCobGenerated, getTopDonations, getDonationByTxId, markDonationAsPaid } = require('./config/mongodb');
@@ -33,6 +34,7 @@ server.on('connection', (socket) => {
 const app = express();
 const httpsServer = https.createServer(httpsOptions, app);
 
+app.use(cors());
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false}))
