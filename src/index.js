@@ -3,7 +3,7 @@ require('./config/dotenv');
 const PORT = process.env.APP_PORT;
 const { CERT_FULLCHAIN_PATH, CERT_PRIVATE_KEY_PATH, CERT_PUBLIC_GNET } = process.env;
 const fs = require('fs');
-const ws = require('ws');
+const WebSocket = require('ws');
 const https = require('https')
 const express = require('express');
 const cors = require('cors');
@@ -19,12 +19,20 @@ const httpsOptions = {
   requestCert: true,
   rejectUnauthorized: false, //Mantenha como false para que os demais endpoints da API não rejeitem requisições sem MTLS
 };
+
+const httpsOptionsWebsocketServer = {
+  cert: fs.readFileSync(CERT_FULLCHAIN_PATH), 
+  key: fs.readFileSync(CERT_PRIVATE_KEY_PATH)
+}
+
+const httpsWebsocketServer = https.createServer(httpsOptionsWebsocketServer);
   
 const sockets = [];
-const WebSocket = require('ws');
 const server = new WebSocket.Server({
-  port: 8080
+  server: httpsWebsocketServer
 });
+
+httpsWebsocketServer.listen(8080);
 
 server.on('connection', (socket) => {
   console.log('[SOCKET] Connected: ' + socket)
