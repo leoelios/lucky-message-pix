@@ -38,12 +38,14 @@ async function markDonationAsPaid({
     await dbo.collection('donations').updateOne({
         txid
     }, {
-        ...donation,
-        chave,
-        valor,
-        horario,
-        paid: true,
-        infoPagador
+        $set: {
+            ...donation,
+            chave,
+            valor,
+            horario,
+            paid: true,
+            infoPagador
+        }
     })
 }
 
